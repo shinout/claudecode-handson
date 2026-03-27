@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code ワークブック</title>
+<style>
+  :root {
+    --primary: #6B4FBB;
+    --primary-light: #EDE9F6;
+    --primary-dark: #4A3580;
+    --success: #2E7D32;
+    --success-light: #E8F5E9;
+    --bg: #FAFAFA;
+    --surface: #FFFFFF;
+    --text: #1A1A1A;
+    --text-secondary: #555;
+    --border: #E0E0E0;
+    --code-bg: #1E1E2E;
+    --code-text: #CDD6F4;
+    --accent-orange: #E8720C;
+    --accent-blue: #1976D2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+  header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+  header p { opacity: 0.9; font-size: 1.05rem; max-width: 600px; margin: 0 auto; }
+
+  /* ── Progress Bar ── */
+  .progress-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  .progress-track {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* ── Layout ── */
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 6rem;
+  }
+
+  /* ── Chapter Navigation ── */
+  .chapter-nav {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .chapter-nav button {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .chapter-nav button:hover { border-color: var(--primary); color: var(--primary); }
+  .chapter-nav button.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+  .chapter-nav button.done {
+    background: var(--success-light);
+    border-color: var(--success);
+    color: var(--success);
+  }
+
+  /* ── Chapter ── */
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+
+  .chapter h2 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .chapter-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .chapter > .lead {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.05rem;
+  }
+
+  /* ── Section ── */
+  section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  section h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ── Code Block ── */
+  .code-block {
+    position: relative;
+    background: var(--code-bg);
+    border-radius: 8px;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+  .code-block pre {
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    color: var(--code-text);
+    font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.3); }
+  .copy-btn.copied { background: var(--success); }
+
+  /* ── Checklist ── */
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 0.15rem;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .checklist label { cursor: pointer; flex: 1; }
+
+  /* ── Callout ── */
+  .callout {
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: 0.95rem;
+  }
+  .callout-icon { font-size: 1.3rem; flex-shrink: 0; line-height: 1.4; }
+  .callout-info { background: #E3F2FD; border-left: 4px solid var(--accent-blue); }
+  .callout-tip { background: var(--success-light); border-left: 4px solid var(--success); }
+  .callout-warn { background: #FFF3E0; border-left: 4px solid var(--accent-orange); }
+
+  /* ── Analogy Box ── */
+  .analogy {
+    background: var(--primary-light);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+  }
+  .analogy strong { color: var(--primary-dark); }
+
+  /* ── Nav Buttons ── */
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+  }
+  .nav-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--primary);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { background: var(--primary); color: white; }
+  .nav-btn.primary { background: var(--primary); color: white; }
+  .nav-btn.primary:hover { background: var(--primary-dark); }
+  .nav-btn:disabled { opacity: 0.3; pointer-events: none; }
+
+  /* ── Misc ── */
+  p { margin-bottom: 0.75rem; }
+  strong { color: var(--text); }
+  a { color: var(--accent-blue); }
+  code {
+    background: #F0EDF5;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
+    font-size: 0.88em;
+  }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .steps > div {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    align-items: flex-start;
+  }
+  .steps > div > div { flex: 1; }
+
+  img.screenshot {
+    max-width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin: 0.5rem 0;
+  }
+
+  .key {
+    display: inline-block;
+    background: #F5F5F5;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    padding: 0.1rem 0.5rem;
+    font-family: "Consolas", monospace;
+    font-size: 0.85em;
+    box-shadow: 0 1px 0 #AAA;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Claude Code ワークブック</h1>
+  <p>AIと一緒にプログラミングする体験をしよう。<br>コードを書いた経験がなくても大丈夫！</p>
+</header>
+
+<div class="progress-bar">
+  <span class="progress-label">進捗</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span id="progressText">0%</span>
+</div>
+
+<main>
+
+<div class="chapter-nav" id="chapterNav">
+  <button onclick="goTo(0)" class="active">1. Claudeって？</button>
+  <button onclick="goTo(1)">2. インストール</button>
+  <button onclick="goTo(2)">3. はじめてのClaude Code</button>
+  <button onclick="goTo(3)">4. Git &amp; GitHub</button>
+  <button onclick="goTo(4)">5. やってみよう</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- Chapter 1: Claudeって何？                       -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="chapter active" id="ch0">
+  <h2><span class="chapter-num">1</span> Claudeって何？</h2>
+  <p class="lead">まずはAIとClaude Codeについてざっくり理解しよう。</p>
+
+  <section>
+    <h3>AIチャットは使ったことある？</h3>
+    <p>Geminiで「〇〇を要約して」「メールの文面考えて」とやったこと、ありますよね。<br>
+    あれは<strong>ブラウザ上でAIと会話する</strong>ツールです。</p>
+    <p><strong>Claude</strong>はAnthropicという会社が作ったAIで、Gemini（Google）やChatGPT（OpenAI）と同じ種類のものです。</p>
+
+    <div class="analogy">
+      <strong>たとえるなら：</strong><br>
+      Gemini = Googleが作ったAIアシスタント<br>
+      ChatGPT = OpenAIが作ったAIアシスタント<br>
+      Claude = Anthropicが作ったAIアシスタント<br>
+      どれも「賢いAI」だけど、作った会社が違う。スマホでいうiPhoneとPixelとGalaxyの関係。
+    </div>
+  </section>
+
+  <section>
+    <h3>じゃあ Claude Code って？</h3>
+    <p>普通のClaude（claude.ai）はブラウザで会話するだけ。でも <strong>Claude Code</strong> はちょっと違います。</p>
+    <p>Claude Codeは<strong>あなたのパソコンの中で動く</strong>AIです。ファイルを作ったり、編集したり、コマンドを実行したり、実際に「手を動かす」ことができます。</p>
+
+    <div class="analogy">
+      <strong>たとえるなら：</strong><br>
+      普通のClaude = 隣にいるアドバイザー。「こうしたらいいよ」と教えてくれる<br>
+      Claude Code = 隣にいるプログラマー。「やっとくね」と実際にやってくれる
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">&#x1f4a1;</span>
+      <div>Claude Codeは「ターミナル」（黒い画面）の中で動きます。ターミナルって何？というのは次のチャプターで説明します。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>何ができるの？</h3>
+    <p>たとえばこんなことを頼めます：</p>
+    <ul style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li>「Webページを作って」 → HTMLファイルを作ってくれる</li>
+      <li>「このファイルの内容を説明して」 → コードを読んで解説してくれる</li>
+      <li>「エラーが出た、直して」 → エラーを読んで原因を見つけて修正してくれる</li>
+      <li>「毎週の集計を自動化するスクリプト作って」 → Pythonスクリプトを作ってくれる</li>
+    </ul>
+    <p>プログラミングの知識がなくても、<strong>日本語で頼むだけ</strong>でOKです。</p>
+  </section>
+
+  <section>
+    <h3>チェックリスト</h3>
+    <ul class="checklist">
+      <li><input type="checkbox" id="c1-1"><label for="c1-1">ClaudeはAnthropicが作ったAIだと理解した</label></li>
+      <li><input type="checkbox" id="c1-2"><label for="c1-2">Claude Codeは「パソコンの中で実際に手を動かすAI」だと理解した</label></li>
+      <li><input type="checkbox" id="c1-3"><label for="c1-3">日本語で頼むだけでプログラミングしてくれると理解した</label></li>
+    </ul>
+  </section>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" disabled>&larr; 前へ</button>
+    <button class="nav-btn primary" onclick="goTo(1)">次へ：インストール &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- Chapter 2: インストール                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="chapter" id="ch1">
+  <h2><span class="chapter-num">2</span> インストール</h2>
+  <p class="lead">パソコンにClaude Codeを入れよう。15分くらいで終わります。</p>
+
+  <section>
+    <h3>ターミナル（PowerShell）を開こう</h3>
+    <p>「ターミナル」は、パソコンに文字で命令を出すための画面です。<br>
+    Windowsでは <strong>PowerShell</strong> という名前のターミナルを使います。</p>
+
+    <div class="analogy">
+      <strong>たとえるなら：</strong><br>
+      普段のパソコン操作 = マウスでアイコンをクリック（GUI）<br>
+      ターミナル = キーボードで文字を打って命令（CUI）<br>
+      どちらも同じことができるけど、プログラミングの世界では文字のほうが速い。
+    </div>
+
+    <div class="steps">
+      <div>
+        <span class="step-num">1</span>
+        <div>キーボードの <span class="key">Win</span> キーを押す（左下のWindowsマーク）</div>
+      </div>
+      <div>
+        <span class="step-num">2</span>
+        <div>「<strong>powershell</strong>」と入力する</div>
+      </div>
+      <div>
+        <span class="step-num">3</span>
+        <div>「<strong>Windows PowerShell</strong>」が出てくるのでクリックして開く</div>
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">&#x2705;</span>
+      <div>青い背景の画面が出たら成功！ここに文字を打って <span class="key">Enter</span> を押すと、コマンド（命令）を実行できます。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>料金について</h3>
+    <p>Claude Codeを使うには、<strong>Claudeの有料プラン</strong>に加入する必要があります。</p>
+
+    <ul style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li><strong>Claude Pro（月 $20 ≒ 約3,000円）</strong> — まずはこれでOK。Claude Codeを使い始められます</li>
+      <li><strong>Claude Max（月 $100〜）</strong> — たくさん使いたくなったらアップグレード</li>
+    </ul>
+
+    <div class="steps">
+      <div>
+        <span class="step-num">1</span>
+        <div><a href="https://claude.ai" target="_blank" rel="noopener">https://claude.ai</a> にアクセスしてアカウントを作成</div>
+      </div>
+      <div>
+        <span class="step-num">2</span>
+        <div>画面の案内に沿って <strong>Pro プラン</strong> に加入（クレジットカードが必要です）</div>
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">&#x26a0;&#xfe0f;</span>
+      <div>サブスクリプション（月額課金）なので、使わなくなったら解約を忘れずに。<br>課金日を覚えておくと安心です（あとでリマインダーを作る方法も紹介します！）</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>Node.js をインストール</h3>
+    <p>Claude Codeを動かすのに必要なソフトです。<br>裏方なので、入れたあとは意識しなくてOK。</p>
+
+    <div class="steps">
+      <div>
+        <span class="step-num">1</span>
+        <div>以下のリンクをクリックして、Node.js のダウンロードページを開く<br>
+        <a href="https://nodejs.org/ja" target="_blank" rel="noopener">https://nodejs.org/ja</a></div>
+      </div>
+      <div>
+        <span class="step-num">2</span>
+        <div>緑色の <strong>「LTS（推奨版）」</strong> のボタンをクリックしてダウンロード</div>
+      </div>
+      <div>
+        <span class="step-num">3</span>
+        <div>ダウンロードしたファイルを開いて、<strong>「Next」を連打</strong>でインストール完了</div>
+      </div>
+    </div>
+
+    <p>インストールできたか確認しよう。PowerShellで以下を入力して <span class="key">Enter</span>：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>node --version</pre>
+    </div>
+    <p><code>v22.xx.x</code> のような数字が出ればOK！</p>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">&#x26a0;&#xfe0f;</span>
+      <div>「認識されていません」と出たら、<strong>PowerShellを一度閉じて、開き直して</strong>からもう一度試してください。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>Claude Code をインストール</h3>
+    <p>いよいよ本体のインストールです。PowerShellで以下を実行：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>npm install -g @anthropic-ai/claude-code</pre>
+    </div>
+    <p>いろいろ文字が流れますが、エラー（赤い文字）が出なければ大丈夫です。</p>
+
+    <p>インストールできたか確認：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>claude --version</pre>
+    </div>
+    <p>バージョン番号が表示されたら成功です！</p>
+  </section>
+
+  <section>
+    <h3>作業フォルダを作ろう</h3>
+    <p>これから作るファイルを置く場所を用意します。</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>mkdir ~/my-first-project
+cd ~/my-first-project</pre>
+    </div>
+
+    <div class="analogy">
+      <strong>たとえるなら：</strong><br>
+      <code>mkdir</code> = 新しいフォルダを作る（make directory）<br>
+      <code>cd</code> = そのフォルダに移動する（change directory）<br>
+      エクスプローラーで「新しいフォルダ」を作って、ダブルクリックで開くのと同じ。
+    </div>
+  </section>
+
+  <section>
+    <h3>チェックリスト</h3>
+    <ul class="checklist">
+      <li><input type="checkbox" id="c2-0"><label for="c2-0">Claude Proプランに加入した</label></li>
+      <li><input type="checkbox" id="c2-1"><label for="c2-1">PowerShellを開けた</label></li>
+      <li><input type="checkbox" id="c2-2"><label for="c2-2"><code>node --version</code> でバージョンが表示された</label></li>
+      <li><input type="checkbox" id="c2-3"><label for="c2-3"><code>claude --version</code> でバージョンが表示された</label></li>
+      <li><input type="checkbox" id="c2-4"><label for="c2-4">作業フォルダ <code>my-first-project</code> を作って移動した</label></li>
+    </ul>
+  </section>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" onclick="goTo(0)">&larr; 前へ</button>
+    <button class="nav-btn primary" onclick="goTo(2)">次へ：はじめてのClaude Code &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- Chapter 3: はじめてのClaude Code                 -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="chapter" id="ch2">
+  <h2><span class="chapter-num">3</span> はじめてのClaude Code</h2>
+  <p class="lead">実際にClaude Codeを起動して会話してみよう。</p>
+
+  <section>
+    <h3>Claude Code を起動する</h3>
+    <p>先ほど作った作業フォルダにいることを確認して、以下を実行：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>claude</pre>
+    </div>
+    <p>初回は認証（ログイン）を求められます。画面の指示に従ってブラウザでログインしてください。</p>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">&#x1f4a1;</span>
+      <div>ログイン完了後、ターミナルに戻ると <code>&gt;</code> のようなプロンプトが出て、入力待ちの状態になります。ここに日本語で話しかけられます。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>話しかけてみよう</h3>
+    <p>以下をそのまま打ち込んでみてください（コピペでもOK）：</p>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>自己紹介して。あなたは何ができるの？</pre>
+    </div>
+    <p>Claudeが自己紹介してくれます。Geminiに話しかけるのと同じ感覚です。</p>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">&#x2705;</span>
+      <div>返事が返ってきたら成功！これがClaude Codeの基本操作です。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>ファイルを作ってもらおう</h3>
+    <p>ここからが普通のAIチャットとの違い。<strong>ファイルを作って</strong>と頼んでみましょう：</p>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>自己紹介のWebページを作って。名前は「○○」（あなたの名前）で、好きなものを3つくらい入れて。</pre>
+    </div>
+
+    <p>Claudeが <code>index.html</code> というファイルを作ってくれます。<br>
+    「ファイルを作成していいですか？」と聞かれたら <span class="key">y</span> を押して <span class="key">Enter</span>。</p>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">&#x1f4a1;</span>
+      <div>Claude Codeは<strong>勝手にファイルを書き換えない</strong>ようになっています。「作っていい？」「変更していい？」と確認してくれるので、安心してOKを出してください。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>作ったページを見てみよう</h3>
+    <p>Claude Codeに頼んでブラウザで開いてもらいましょう：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>今作ったHTMLファイルをブラウザで開いて</pre>
+    </div>
+    <p>ブラウザに自己紹介ページが表示されたら大成功！</p>
+    <p>気に入らないところがあれば、さらに頼んでみましょう：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>背景色をもっとかわいい感じにして。あと写真を入れるスペースも追加して。</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>困ったとき — Claude Codeに助けてもらうコツ</h3>
+    <p>エラーが出たり、何が起きてるかわからなくなったら、<strong>まずClaude Code自体に聞きましょう</strong>。<br>
+    Claude Codeは今の状況を把握しているので、一番的確に答えてくれます。</p>
+
+    <p><strong>最初にこれをコピペして伝えましょう：</strong></p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>私はプログラミング初心者で、ターミナルも今日初めて使います。エラーや専門用語が出てきたら、日常の言葉でわかりやすく説明してください。何をすればいいかも具体的に教えてください。</pre>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">&#x2705;</span>
+      <div><strong>ポイント：</strong>AIには「自分がどういう人か」を伝えると、回答のレベルを合わせてくれます。Geminiでも同じことができますよね。これと同じです。</div>
+    </div>
+
+    <p><strong>こんなふうに聞いてみてください：</strong></p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>赤い文字でエラーが出た。何が起きてるの？どうすればいい？</pre>
+    </div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>今の状況を説明して。私は何をすればいい？</pre>
+    </div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>さっきのコマンド、何をしたのか教えて</pre>
+    </div>
+
+    <p><strong>それでも解決しない場合のステップ：</strong></p>
+    <div class="steps">
+      <div>
+        <span class="step-num">1</span>
+        <div><strong>Claude Codeに聞く</strong>（上のように。ほとんどの問題はここで解決します）</div>
+      </div>
+      <div>
+        <span class="step-num">2</span>
+        <div><strong>Geminiに聞く</strong>：Claude Codeの回答をコピペして「これでもわからないんだけど、もっと簡単に説明して」</div>
+      </div>
+      <div>
+        <span class="step-num">3</span>
+        <div><strong>Meetで声かけて！</strong>「すみません、わかりません！」でOKです</div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">&#x1f4a1;</span>
+      <div>Claude Codeを終了するときは <code>/exit</code> と入力するか、<span class="key">Ctrl</span> + <span class="key">C</span> を押します。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>チェックリスト</h3>
+    <ul class="checklist">
+      <li><input type="checkbox" id="c3-1"><label for="c3-1">Claude Codeを起動してログインできた</label></li>
+      <li><input type="checkbox" id="c3-2"><label for="c3-2">Claudeに話しかけて返事が返ってきた</label></li>
+      <li><input type="checkbox" id="c3-3"><label for="c3-3">自己紹介ページを作ってもらえた</label></li>
+      <li><input type="checkbox" id="c3-4"><label for="c3-4">ブラウザでページを表示できた</label></li>
+      <li><input type="checkbox" id="c3-5"><label for="c3-5">デザインの変更を頼んでみた</label></li>
+    </ul>
+  </section>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" onclick="goTo(1)">&larr; 前へ</button>
+    <button class="nav-btn primary" onclick="goTo(3)">次へ：Git &amp; GitHub &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- Chapter 4: Git & GitHub                        -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="chapter" id="ch3">
+  <h2><span class="chapter-num">4</span> Git &amp; GitHub</h2>
+  <p class="lead">作ったものを保存・公開する方法を学ぼう。</p>
+
+  <section>
+    <h3>なんで Git / GitHub が必要なの？</h3>
+    <p>さっき作った自己紹介ページ、今はあなたのパソコンの中にしかありません。</p>
+    <ul style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li>パソコンが壊れたら消えてしまう</li>
+      <li>他の人に見せられない</li>
+      <li>「さっきのバージョンに戻したい」ができない</li>
+    </ul>
+    <p>これを解決するのが <strong>Git</strong> と <strong>GitHub</strong> です。</p>
+
+    <div class="analogy">
+      <strong>たとえるなら：</strong><br>
+      <strong>Git</strong> = Googleドキュメントの「変更履歴」機能。いつ、何を変えたかを記録してくれる<br>
+      <strong>GitHub</strong> = Google ドライブ。ファイルをクラウドに保存して、他の人と共有できる<br><br>
+      つまり Git + GitHub = <strong>「変更履歴付きのクラウド保存」</strong>
+    </div>
+  </section>
+
+  <section>
+    <h3>Git をインストール</h3>
+
+    <div class="steps">
+      <div>
+        <span class="step-num">1</span>
+        <div>以下のリンクからGit for Windowsをダウンロード<br>
+        <a href="https://gitforwindows.org/" target="_blank" rel="noopener">https://gitforwindows.org/</a></div>
+      </div>
+      <div>
+        <span class="step-num">2</span>
+        <div>ダウンロードしたファイルを開いて、<strong>「Next」を連打</strong>でインストール</div>
+      </div>
+      <div>
+        <span class="step-num">3</span>
+        <div>PowerShellを<strong>一度閉じて開き直して</strong>から、確認：</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>git --version</pre>
+    </div>
+    <p><code>git version 2.xx.x</code> と出ればOK！</p>
+  </section>
+
+  <section>
+    <h3>GitHub CLI（gh）をインストール</h3>
+    <p>GitHub CLI は、ターミナルからGitHubを操作するためのツールです。<br>
+    リポジトリの作成やログインがコマンド1つでできるようになります。</p>
+
+    <div class="steps">
+      <div>
+        <span class="step-num">1</span>
+        <div>PowerShellで以下を実行してインストール：</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>winget install --id GitHub.cli</pre>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">&#x1f4a1;</span>
+      <div><code>winget</code> はWindows標準のアプリインストーラーです。「アプリストア」のコマンド版だと思ってください。</div>
+    </div>
+
+    <div class="steps">
+      <div>
+        <span class="step-num">2</span>
+        <div>PowerShellを<strong>一度閉じて開き直して</strong>から、確認：</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>gh --version</pre>
+    </div>
+    <p><code>gh version 2.xx.x</code> と出ればOK！</p>
+
+    <div class="steps">
+      <div>
+        <span class="step-num">3</span>
+        <div>GitHubにログインする：</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>gh auth login</pre>
+    </div>
+    <p>いくつか質問されます。以下のように選んでください：</p>
+    <ul style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li>「Where do you use GitHub?」→ <strong>GitHub.com</strong></li>
+      <li>「preferred protocol」→ <strong>HTTPS</strong></li>
+      <li>「Authenticate Git」→ <strong>Yes</strong></li>
+      <li>「How would you like to authenticate」→ <strong>Login with a web browser</strong></li>
+    </ul>
+    <p>ブラウザが開くので、画面に表示されるコードを入力して認証を完了してください。</p>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">&#x2705;</span>
+      <div>これでターミナルからGitHubにアクセスできるようになりました。Claude Codeもこの認証を使ってGitHubを操作できます。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>GitHub アカウントを作ろう</h3>
+
+    <div class="steps">
+      <div>
+        <span class="step-num">1</span>
+        <div><a href="https://github.com/signup" target="_blank" rel="noopener">https://github.com/signup</a> にアクセス</div>
+      </div>
+      <div>
+        <span class="step-num">2</span>
+        <div>メールアドレス、パスワード、ユーザー名を入力してアカウント作成</div>
+      </div>
+      <div>
+        <span class="step-num">3</span>
+        <div>メールに届く確認コードを入力して完了</div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">&#x1f4a1;</span>
+      <div>ユーザー名は今後ずっと使います。本名でもニックネームでもOKですが、短くて覚えやすいものにしましょう。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>Git の初期設定</h3>
+    <p>Gitに「あなたが誰か」を教えてあげます。<strong>名前とメールアドレスを自分のものに変えて</strong>実行してください：</p>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>git config --global user.name "あなたの名前"
+git config --global user.email "your-email@example.com"</pre>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">&#x26a0;&#xfe0f;</span>
+      <div>メールアドレスは <strong>GitHubの登録に使ったもの</strong> と同じにしてください。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>GitHub にコードをあげてみよう</h3>
+    <p>ここからはClaude Codeに手伝ってもらいましょう！<br>
+    まず <code>cd ~/my-first-project</code> で作業フォルダに移動してから、Claude Codeを起動：</p>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>cd ~/my-first-project
+claude</pre>
+    </div>
+
+    <p>そして、こう頼みます：</p>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>このフォルダをGitリポジトリにして、GitHubに「my-first-project」という名前のリポジトリを作って、コードをプッシュして。手順を1つずつ説明しながらやって。</pre>
+    </div>
+
+    <p>Claude Codeが以下のことを1つずつ説明しながらやってくれます：</p>
+    <ol style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li><code>git init</code> — このフォルダをGitで管理し始める</li>
+      <li><code>git add .</code> — 変更したファイルを「記録対象」にする</li>
+      <li><code>git commit</code> — 変更を記録する（セーブポイントを作る）</li>
+      <li><code>git push</code> — GitHubにアップロードする</li>
+    </ol>
+
+    <div class="analogy">
+      <strong>たとえるなら：</strong><br>
+      <code>git init</code> = 「このフォルダ、変更履歴つけるね」と宣言<br>
+      <code>git add</code> = 「このファイルたちを保存対象にするね」<br>
+      <code>git commit</code> = 「今の状態をセーブ！」（ゲームのセーブと同じ）<br>
+      <code>git push</code> = 「セーブデータをクラウドにアップ」
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">&#x1f4a1;</span>
+      <div>途中でGitHubの認証を求められることがあります。ブラウザが開いたら画面の指示に従ってログインしてください。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>GitHub で確認しよう</h3>
+    <p>プッシュが成功したら、ブラウザで GitHub を開いてみましょう：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>https://github.com/あなたのユーザー名/my-first-project</pre>
+    </div>
+    <p>さっき作った自己紹介ページのコードが表示されていたら大成功！<br>
+    <strong>あなたのコードが世界に公開されました。</strong></p>
+  </section>
+
+  <section>
+    <h3>チェックリスト</h3>
+    <ul class="checklist">
+      <li><input type="checkbox" id="c4-1"><label for="c4-1">GitとGitHubの違いがなんとなくわかった</label></li>
+      <li><input type="checkbox" id="c4-2"><label for="c4-2">Gitをインストールして <code>git --version</code> が動いた</label></li>
+      <li><input type="checkbox" id="c4-3"><label for="c4-3">GitHub CLIをインストールして <code>gh --version</code> が動いた</label></li>
+      <li><input type="checkbox" id="c4-4"><label for="c4-4">GitHubアカウントを作った</label></li>
+      <li><input type="checkbox" id="c4-5"><label for="c4-5"><code>gh auth login</code> でGitHubにログインした</label></li>
+      <li><input type="checkbox" id="c4-6"><label for="c4-6">Gitの初期設定（名前・メール）をした</label></li>
+      <li><input type="checkbox" id="c4-7"><label for="c4-7">Claude Codeの力を借りてGitHubにコードをプッシュできた</label></li>
+      <li><input type="checkbox" id="c4-8"><label for="c4-8">GitHubのページで自分のコードを確認できた</label></li>
+    </ul>
+  </section>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" onclick="goTo(2)">&larr; 前へ</button>
+    <button class="nav-btn primary" onclick="goTo(4)">次へ：やってみよう &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- Chapter 5: やってみよう                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="chapter" id="ch4">
+  <h2><span class="chapter-num">5</span> やってみよう</h2>
+  <p class="lead">ここまでの知識を使って、自分のやりたいことをClaude Codeにやってもらおう。</p>
+
+  <section>
+    <h3>自由にClaude Codeと会話しよう</h3>
+    <p>ここからは自由時間です。何を作っても、何を聞いてもOK！</p>
+    <p>アイデアが浮かばなかったら、こんなことを試してみてください：</p>
+    <ul style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li>自己紹介ページをもっと豪華にする</li>
+      <li>簡単なクイズゲームを作ってもらう</li>
+      <li>普段の業務で「面倒だな」と思ってることを話してみる</li>
+    </ul>
+  </section>
+
+  <section>
+    <h3>おすすめ：課金リマインダーを作ってみよう</h3>
+    <p>さっきClaude Proに月$20で加入しましたよね。<br>
+    サブスクは「使わなくなっても課金され続ける」のが怖いところ。<br>
+    <strong>そこで、課金日の前にリマインドしてくれるツールを作ってみましょう！</strong></p>
+
+    <p>Claude Codeにこう頼んでみてください：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>Claudeの課金日が毎月○日なんだけど、その3日前にリマインドしてくれるHTMLページを作って。ページを開くと「あと○日で課金日です」と表示されるやつ。カレンダーに登録するボタンもつけて。</pre>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">&#x2705;</span>
+      <div><strong>これが「プログラミングで自分の困りごとを解決する」体験です。</strong>思いついたことは何でもClaude Codeに相談してみましょう。「できるかな？」と聞くだけでもOKです。</div>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">&#x2705;</span>
+      <div><strong>コツ：</strong>Claude Codeには遠慮なく具体的に頼むほどうまくいきます。「いい感じに」より「青系の色で、左にメニューがあって、右にコンテンツがあるレイアウトで」のほうが良い結果になります。</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>作ったらGitHubにあげよう</h3>
+    <p>何か作ったら、さっき覚えたGitHubへのアップロードもやってみましょう：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>今の変更をGitHubにプッシュして</pre>
+    </div>
+    <p>Claude Codeが <code>git add</code> → <code>git commit</code> → <code>git push</code> を実行してくれます。</p>
+  </section>
+
+  <section>
+    <h3>今日のまとめ</h3>
+    <p>おつかれさまでした！今日やったことを振り返りましょう：</p>
+    <ul class="checklist">
+      <li><input type="checkbox" id="c5-1"><label for="c5-1">AIの種類（Gemini / ChatGPT / Claude）を理解した</label></li>
+      <li><input type="checkbox" id="c5-2"><label for="c5-2">ターミナル（PowerShell）を使えるようになった</label></li>
+      <li><input type="checkbox" id="c5-3"><label for="c5-3">Claude Codeで実際にファイルを作ってもらった</label></li>
+      <li><input type="checkbox" id="c5-4"><label for="c5-4">GitとGitHubの仕組みがわかった</label></li>
+      <li><input type="checkbox" id="c5-5"><label for="c5-5">自分のコードをGitHubに公開できた</label></li>
+      <li><input type="checkbox" id="c5-6"><label for="c5-6">Claude Codeに自由に頼んでみた</label></li>
+    </ul>
+  </section>
+
+  <section>
+    <h3>次のステップ</h3>
+    <p>今日学んだことを使えば、これからこんなことができます：</p>
+    <ul style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li>業務で使うツールやWebページを自分で作る</li>
+      <li>データの集計や加工を自動化する</li>
+      <li>SlackやGoogle Workspaceと連携するスクリプトを作る</li>
+    </ul>
+    <p>困ったらいつでもClaude Codeに聞いてみてください。そしてClaude Codeでも解決しなかったら、いつでも声をかけてください！</p>
+  </section>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" onclick="goTo(3)">&larr; 前へ</button>
+    <button class="nav-btn primary" disabled>完了！おつかれさまでした</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+  const TOTAL_CHAPTERS = 5;
+  const chapters = document.querySelectorAll('.chapter');
+  const navButtons = document.querySelectorAll('.chapter-nav button');
+  let current = 0;
+
+  // ── Persist state in localStorage ──
+  const STORAGE_KEY = 'cc-workbook';
+  function loadState() {
+    try {
+      const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (!s) return;
+      if (typeof s.chapter === 'number') { current = s.chapter; }
+      if (s.checks) {
+        Object.entries(s.checks).forEach(([id, val]) => {
+          const el = document.getElementById(id);
+          if (el) el.checked = val;
+        });
+      }
+    } catch(e) {}
+  }
+  function saveState() {
+    const checks = {};
+    document.querySelectorAll('.checklist input[type="checkbox"]').forEach(el => {
+      checks[el.id] = el.checked;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ chapter: current, checks }));
+  }
+
+  function goTo(idx) {
+    current = idx;
+    chapters.forEach((ch, i) => ch.classList.toggle('active', i === idx));
+    navButtons.forEach((btn, i) => btn.classList.toggle('active', i === idx));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    updateProgress();
+    saveState();
+  }
+
+  function updateProgress() {
+    const boxes = document.querySelectorAll('.checklist input[type="checkbox"]');
+    const checked = [...boxes].filter(b => b.checked).length;
+    const pct = boxes.length > 0 ? Math.round((checked / boxes.length) * 100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = pct + '%';
+
+    // Mark completed chapters in nav
+    chapters.forEach((ch, i) => {
+      const chBoxes = ch.querySelectorAll('.checklist input[type="checkbox"]');
+      const allChecked = chBoxes.length > 0 && [...chBoxes].every(b => b.checked);
+      navButtons[i].classList.toggle('done', allChecked && i !== current);
+    });
+    saveState();
+  }
+
+  // Listen to checkbox changes
+  document.querySelectorAll('.checklist input[type="checkbox"]').forEach(el => {
+    el.addEventListener('change', updateProgress);
+  });
+
+  // Copy button
+  function copyCode(btn) {
+    const code = btn.parentElement.querySelector('pre').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = 'コピーしました！';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'コピー';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  // Init
+  loadState();
+  goTo(current);
+  updateProgress();
+</script>
+
+</body>
+</html>

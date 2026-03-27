@@ -35,11 +35,46 @@
   header {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color: white;
-    padding: 3rem 1.5rem;
+    padding: 2.5rem 1.5rem 1.5rem;
     text-align: center;
   }
   header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
   header p { opacity: 0.9; font-size: 1.05rem; max-width: 600px; margin: 0 auto; }
+
+  /* ── OS Toggle ── */
+  .os-toggle {
+    display: inline-flex;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 4px;
+    margin-top: 1.25rem;
+    gap: 2px;
+  }
+  .os-toggle button {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .os-toggle button:hover { color: white; }
+  .os-toggle button.active {
+    background: white;
+    color: var(--primary-dark);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .os-icon { font-size: 1.1rem; }
+
+  /* ── OS-specific visibility ── */
+  body.os-win [data-os="mac"] { display: none !important; }
+  body.os-mac [data-os="win"] { display: none !important; }
 
   /* ── Progress Bar ── */
   .progress-bar {
@@ -289,13 +324,6 @@
   }
   .steps > div > div { flex: 1; }
 
-  img.screenshot {
-    max-width: 100%;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    margin: 0.5rem 0;
-  }
-
   .key {
     display: inline-block;
     background: #F5F5F5;
@@ -308,11 +336,15 @@
   }
 </style>
 </head>
-<body>
+<body class="os-win">
 
 <header>
   <h1>Claude Code ワークブック</h1>
   <p>AIと一緒にプログラミングする体験をしよう。<br>コードを書いた経験がなくても大丈夫！</p>
+  <div class="os-toggle">
+    <button id="osWinBtn" class="active" onclick="setOS('win')"><span class="os-icon">&#x1fab4;</span> Windows</button>
+    <button id="osMacBtn" onclick="setOS('mac')"><span class="os-icon">&#x1f34e;</span> Mac</button>
+  </div>
 </header>
 
 <div class="progress-bar">
@@ -405,9 +437,8 @@
   <p class="lead">パソコンにClaude Codeを入れよう。15分くらいで終わります。</p>
 
   <section>
-    <h3>ターミナル（PowerShell）を開こう</h3>
-    <p>「ターミナル」は、パソコンに文字で命令を出すための画面です。<br>
-    Windowsでは <strong>PowerShell</strong> という名前のターミナルを使います。</p>
+    <h3>ターミナルを開こう</h3>
+    <p>「ターミナル」は、パソコンに文字で命令を出すための画面です。</p>
 
     <div class="analogy">
       <strong>たとえるなら：</strong><br>
@@ -416,24 +447,50 @@
       どちらも同じことができるけど、プログラミングの世界では文字のほうが速い。
     </div>
 
-    <div class="steps">
-      <div>
-        <span class="step-num">1</span>
-        <div>キーボードの <span class="key">Win</span> キーを押す（左下のWindowsマーク）</div>
+    <!-- Windows -->
+    <div data-os="win">
+      <p><strong>Windows</strong>では <strong>PowerShell</strong> という名前のターミナルを使います。</p>
+      <div class="steps">
+        <div>
+          <span class="step-num">1</span>
+          <div>キーボードの <span class="key">Win</span> キーを押す（左下のWindowsマーク）</div>
+        </div>
+        <div>
+          <span class="step-num">2</span>
+          <div>「<strong>powershell</strong>」と入力する</div>
+        </div>
+        <div>
+          <span class="step-num">3</span>
+          <div>「<strong>Windows PowerShell</strong>」が出てくるのでクリックして開く</div>
+        </div>
       </div>
-      <div>
-        <span class="step-num">2</span>
-        <div>「<strong>powershell</strong>」と入力する</div>
-      </div>
-      <div>
-        <span class="step-num">3</span>
-        <div>「<strong>Windows PowerShell</strong>」が出てくるのでクリックして開く</div>
+      <div class="callout callout-tip">
+        <span class="callout-icon">&#x2705;</span>
+        <div>青い背景の画面が出たら成功！ここに文字を打って <span class="key">Enter</span> を押すと、コマンド（命令）を実行できます。</div>
       </div>
     </div>
 
-    <div class="callout callout-tip">
-      <span class="callout-icon">&#x2705;</span>
-      <div>青い背景の画面が出たら成功！ここに文字を打って <span class="key">Enter</span> を押すと、コマンド（命令）を実行できます。</div>
+    <!-- Mac -->
+    <div data-os="mac">
+      <p><strong>Mac</strong>では「<strong>ターミナル</strong>」というアプリを使います。</p>
+      <div class="steps">
+        <div>
+          <span class="step-num">1</span>
+          <div>キーボードの <span class="key">Command</span> + <span class="key">Space</span> を押す（Spotlight検索が開きます）</div>
+        </div>
+        <div>
+          <span class="step-num">2</span>
+          <div>「<strong>terminal</strong>」と入力する</div>
+        </div>
+        <div>
+          <span class="step-num">3</span>
+          <div>「<strong>ターミナル</strong>」が出てくるので <span class="key">Enter</span> で開く</div>
+        </div>
+      </div>
+      <div class="callout callout-tip">
+        <span class="callout-icon">&#x2705;</span>
+        <div>白い（または黒い）画面が出たら成功！ここに文字を打って <span class="key">Enter</span> を押すと、コマンド（命令）を実行できます。</div>
+      </div>
     </div>
   </section>
 
@@ -479,11 +536,11 @@
       </div>
       <div>
         <span class="step-num">3</span>
-        <div>ダウンロードしたファイルを開いて、<strong>「Next」を連打</strong>でインストール完了</div>
+        <div>ダウンロードしたファイルを開いて、<span data-os="win"><strong>「Next」を連打</strong></span><span data-os="mac"><strong>「続ける」を連打</strong></span>でインストール完了</div>
       </div>
     </div>
 
-    <p>インストールできたか確認しよう。PowerShellで以下を入力して <span class="key">Enter</span>：</p>
+    <p>インストールできたか確認しよう。<span data-os="win">PowerShell</span><span data-os="mac">ターミナル</span>で以下を入力して <span class="key">Enter</span>：</p>
     <div class="code-block">
       <button class="copy-btn" onclick="copyCode(this)">コピー</button>
       <pre>node --version</pre>
@@ -492,13 +549,13 @@
 
     <div class="callout callout-warn">
       <span class="callout-icon">&#x26a0;&#xfe0f;</span>
-      <div>「認識されていません」と出たら、<strong>PowerShellを一度閉じて、開き直して</strong>からもう一度試してください。</div>
+      <div>「認識されていません」と出たら、<strong><span data-os="win">PowerShell</span><span data-os="mac">ターミナル</span>を一度閉じて、開き直して</strong>からもう一度試してください。</div>
     </div>
   </section>
 
   <section>
     <h3>Claude Code をインストール</h3>
-    <p>いよいよ本体のインストールです。PowerShellで以下を実行：</p>
+    <p>いよいよ本体のインストールです。<span data-os="win">PowerShell</span><span data-os="mac">ターミナル</span>で以下を実行：</p>
     <div class="code-block">
       <button class="copy-btn" onclick="copyCode(this)">コピー</button>
       <pre>npm install -g @anthropic-ai/claude-code</pre>
@@ -526,7 +583,7 @@ cd ~/my-first-project</pre>
       <strong>たとえるなら：</strong><br>
       <code>mkdir</code> = 新しいフォルダを作る（make directory）<br>
       <code>cd</code> = そのフォルダに移動する（change directory）<br>
-      エクスプローラーで「新しいフォルダ」を作って、ダブルクリックで開くのと同じ。
+      <span data-os="win">エクスプローラー</span><span data-os="mac">Finder</span>で「新しいフォルダ」を作って、ダブルクリックで開くのと同じ。
     </div>
   </section>
 
@@ -534,7 +591,7 @@ cd ~/my-first-project</pre>
     <h3>チェックリスト</h3>
     <ul class="checklist">
       <li><input type="checkbox" id="c2-0"><label for="c2-0">Claude Proプランに加入した</label></li>
-      <li><input type="checkbox" id="c2-1"><label for="c2-1">PowerShellを開けた</label></li>
+      <li><input type="checkbox" id="c2-1"><label for="c2-1"><span data-os="win">PowerShell</span><span data-os="mac">ターミナル</span>を開けた</label></li>
       <li><input type="checkbox" id="c2-2"><label for="c2-2"><code>node --version</code> でバージョンが表示された</label></li>
       <li><input type="checkbox" id="c2-3"><label for="c2-3"><code>claude --version</code> でバージョンが表示された</label></li>
       <li><input type="checkbox" id="c2-4"><label for="c2-4">作業フォルダ <code>my-first-project</code> を作って移動した</label></li>
@@ -715,20 +772,33 @@ cd ~/my-first-project</pre>
   <section>
     <h3>Git をインストール</h3>
 
-    <div class="steps">
-      <div>
-        <span class="step-num">1</span>
-        <div>以下のリンクからGit for Windowsをダウンロード<br>
-        <a href="https://gitforwindows.org/" target="_blank" rel="noopener">https://gitforwindows.org/</a></div>
+    <!-- Windows -->
+    <div data-os="win">
+      <div class="steps">
+        <div>
+          <span class="step-num">1</span>
+          <div>以下のリンクからGit for Windowsをダウンロード<br>
+          <a href="https://gitforwindows.org/" target="_blank" rel="noopener">https://gitforwindows.org/</a></div>
+        </div>
+        <div>
+          <span class="step-num">2</span>
+          <div>ダウンロードしたファイルを開いて、<strong>「Next」を連打</strong>でインストール</div>
+        </div>
+        <div>
+          <span class="step-num">3</span>
+          <div>PowerShellを<strong>一度閉じて開き直して</strong>から、確認：</div>
+        </div>
       </div>
-      <div>
-        <span class="step-num">2</span>
-        <div>ダウンロードしたファイルを開いて、<strong>「Next」を連打</strong>でインストール</div>
+    </div>
+
+    <!-- Mac -->
+    <div data-os="mac">
+      <p>ターミナルで以下を実行してください。Macの開発ツール一式がインストールされます：</p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+        <pre>xcode-select --install</pre>
       </div>
-      <div>
-        <span class="step-num">3</span>
-        <div>PowerShellを<strong>一度閉じて開き直して</strong>から、確認：</div>
-      </div>
+      <p>ポップアップが出たら「インストール」をクリック。数分かかります。<br>完了したら確認：</p>
     </div>
 
     <div class="code-block">
@@ -743,28 +813,51 @@ cd ~/my-first-project</pre>
     <p>GitHub CLI は、ターミナルからGitHubを操作するためのツールです。<br>
     リポジトリの作成やログインがコマンド1つでできるようになります。</p>
 
-    <div class="steps">
-      <div>
-        <span class="step-num">1</span>
-        <div>PowerShellで以下を実行してインストール：</div>
+    <!-- Windows -->
+    <div data-os="win">
+      <div class="steps">
+        <div>
+          <span class="step-num">1</span>
+          <div>PowerShellで以下を実行してインストール：</div>
+        </div>
+      </div>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+        <pre>winget install --id GitHub.cli</pre>
+      </div>
+      <div class="callout callout-info">
+        <span class="callout-icon">&#x1f4a1;</span>
+        <div><code>winget</code> はWindows標準のアプリインストーラーです。「アプリストア」のコマンド版だと思ってください。</div>
+      </div>
+      <div class="steps">
+        <div>
+          <span class="step-num">2</span>
+          <div>PowerShellを<strong>一度閉じて開き直して</strong>から、確認：</div>
+        </div>
       </div>
     </div>
 
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
-      <pre>winget install --id GitHub.cli</pre>
-    </div>
-
-    <div class="callout callout-info">
-      <span class="callout-icon">&#x1f4a1;</span>
-      <div><code>winget</code> はWindows標準のアプリインストーラーです。「アプリストア」のコマンド版だと思ってください。</div>
-    </div>
-
-    <div class="steps">
-      <div>
-        <span class="step-num">2</span>
-        <div>PowerShellを<strong>一度閉じて開き直して</strong>から、確認：</div>
+    <!-- Mac -->
+    <div data-os="mac">
+      <p>まず Homebrew（Mac用のアプリインストーラー）を入れます：</p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+        <pre>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</pre>
       </div>
+      <div class="callout callout-info">
+        <span class="callout-icon">&#x1f4a1;</span>
+        <div><code>Homebrew</code> はMac定番のアプリインストーラーです。「アプリストア」のコマンド版だと思ってください。パスワードを聞かれたら、Macのログインパスワードを入力してください。</div>
+      </div>
+      <div class="callout callout-warn">
+        <span class="callout-icon">&#x26a0;&#xfe0f;</span>
+        <div>インストール完了後、画面に「Next steps」として <code>eval</code> から始まるコマンドが表示されることがあります。その場合はそのコマンドもコピペして実行してください。</div>
+      </div>
+      <p>Homebrewが入ったら、GitHub CLIをインストール：</p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+        <pre>brew install gh</pre>
+      </div>
+      <p>確認：</p>
     </div>
 
     <div class="code-block">
@@ -775,7 +868,8 @@ cd ~/my-first-project</pre>
 
     <div class="steps">
       <div>
-        <span class="step-num">3</span>
+        <span class="step-num" data-os="win">3</span>
+        <span class="step-num" data-os="mac">2</span>
         <div>GitHubにログインする：</div>
       </div>
     </div>
@@ -966,7 +1060,7 @@ claude</pre>
     <p>おつかれさまでした！今日やったことを振り返りましょう：</p>
     <ul class="checklist">
       <li><input type="checkbox" id="c5-1"><label for="c5-1">AIの種類（Gemini / ChatGPT / Claude）を理解した</label></li>
-      <li><input type="checkbox" id="c5-2"><label for="c5-2">ターミナル（PowerShell）を使えるようになった</label></li>
+      <li><input type="checkbox" id="c5-2"><label for="c5-2">ターミナルを使えるようになった</label></li>
       <li><input type="checkbox" id="c5-3"><label for="c5-3">Claude Codeで実際にファイルを作ってもらった</label></li>
       <li><input type="checkbox" id="c5-4"><label for="c5-4">GitとGitHubの仕組みがわかった</label></li>
       <li><input type="checkbox" id="c5-5"><label for="c5-5">自分のコードをGitHubに公開できた</label></li>
@@ -999,10 +1093,20 @@ claude</pre>
   const navButtons = document.querySelectorAll('.chapter-nav button');
   let current = 0;
 
+  // ── OS Toggle ──
+  function setOS(os) {
+    document.body.className = 'os-' + os;
+    document.getElementById('osWinBtn').classList.toggle('active', os === 'win');
+    document.getElementById('osMacBtn').classList.toggle('active', os === 'mac');
+    localStorage.setItem('cc-workbook-os', os);
+  }
+
   // ── Persist state in localStorage ──
   const STORAGE_KEY = 'cc-workbook';
   function loadState() {
     try {
+      const savedOS = localStorage.getItem('cc-workbook-os');
+      if (savedOS) setOS(savedOS);
       const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
       if (!s) return;
       if (typeof s.chapter === 'number') { current = s.chapter; }

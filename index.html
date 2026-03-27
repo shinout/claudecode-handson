@@ -934,6 +934,53 @@ git config --global user.email "your-email@example.com"</pre>
   </section>
 
   <section>
+    <h3>GitHub を使うときの注意</h3>
+    <p>GitHubにコードをあげる前に、<strong>とても大事な注意点</strong>があります。</p>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">&#x26a0;&#xfe0f;</span>
+      <div><strong>GitHubに置いたものは、設定次第で全世界に公開されます。</strong><br>
+      誰でも見られる状態になるので、載せてはいけないものがあります。</div>
+    </div>
+
+    <p><strong>絶対に載せてはいけないもの：</strong></p>
+    <ul style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li><strong>パスワード・トークン・APIキー</strong> — Claude のAPIキー、Google のアクセスキーなど。悪意のある人に使われて高額請求されることがあります</li>
+      <li><strong>会社の機密情報</strong> — 社内のデータ、顧客情報、非公開の資料など</li>
+      <li><strong>個人情報</strong> — 住所、電話番号、マイナンバーなど</li>
+    </ul>
+
+    <div class="analogy">
+      <strong>たとえるなら：</strong><br>
+      GitHubにコードをあげる = 街の掲示板にプリントして貼り出す<br>
+      誰でも読めるし、コピーもできる。一度見られたら取り消せない。
+    </div>
+
+    <p><strong>「消せばいい」は通用しません：</strong></p>
+    <p>Gitは<strong>変更の履歴をすべて記録</strong>しています。ファイルを消しても、過去の履歴からたどれば見えてしまいます。<br>
+    つまり「うっかりパスワードを載せて、あとで消した」は<strong>意味がありません</strong>。履歴にしっかり残っています。</p>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">&#x2705;</span>
+      <div><strong>対策：リポジトリを「Private（非公開）」にする</strong><br>
+      GitHubではリポジトリを作るときに「Public（公開）」か「Private（非公開）」を選べます。<br>
+      業務で使うものや、少しでも不安があるものは<strong>必ず Private にしましょう</strong>。</div>
+    </div>
+
+    <p><strong>万が一、秘密の情報をあげてしまったら：</strong></p>
+    <ol style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li>そのパスワード・トークンを<strong>すぐに無効化（変更・再発行）</strong>する</li>
+      <li>リポジトリを削除するか Private に変更する</li>
+      <li>ファイルから消すだけでは不十分（履歴に残るため）</li>
+    </ol>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">&#x1f4a1;</span>
+      <div>今日のハンズオンで作る自己紹介ページには秘密情報は入らないので、Public で大丈夫です。でもこの先、仕事で使うときはこの注意を思い出してください。</div>
+    </div>
+  </section>
+
+  <section>
     <h3>GitHub にコードをあげてみよう</h3>
     <p>ここからはClaude Codeに手伝ってもらいましょう！<br>
     まず <code>cd ~/my-first-project</code> で作業フォルダに移動してから、Claude Codeを起動：</p>

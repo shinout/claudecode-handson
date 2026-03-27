@@ -1143,6 +1143,35 @@ claude</pre>
       <span class="callout-icon">&#x2705;</span>
       <div><strong>ポイント：</strong>だからこそ、こまめに commit（セーブ）しておくのが大事です。セーブしていない変更は戻せません。迷ったら「今の状態をコミットして」とClaude Codeに頼みましょう。</div>
     </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">&#x26a0;&#xfe0f;</span>
+      <div>
+        <strong>「戻せるもの」と「戻せないもの」があります</strong><br>
+        Gitが管理しているのは、あくまで<strong>フォルダの中のファイル（ソースコード）だけ</strong>です。それ以外のことは戻せません。
+      </div>
+    </div>
+
+    <p><strong>Gitで戻せるもの：</strong></p>
+    <ul style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li>HTMLファイルやスクリプトの中身（ソースコード）</li>
+      <li>ファイルの追加・削除・名前変更</li>
+    </ul>
+
+    <p><strong>Gitでは戻せないもの：</strong></p>
+    <ul style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li><strong>送ったメールやSlackのメッセージ</strong> — プログラムがメールを送信したら、それは取り消せない</li>
+      <li><strong>パソコンやサービスの設定変更</strong> — Gitの管理外なので巻き戻らない</li>
+      <li><strong>データベースの中身</strong> — データを消すスクリプトを実行してしまったら、コードを戻してもデータは戻らない</li>
+      <li><strong>外部サービスへの操作</strong> — APIで何かを登録・削除した結果は戻らない</li>
+    </ul>
+
+    <div class="analogy">
+      <strong>たとえるなら：</strong><br>
+      Gitで戻せる = レシピ（書類）を前のバージョンに戻す<br>
+      Gitで戻せない = すでに焼いてしまったケーキは元の材料に戻らない<br>
+      コード（レシピ）は戻せるけど、コードが実行した結果（焼いたケーキ）は戻せない。
+    </div>
   </section>
 
   <section>

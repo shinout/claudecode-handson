@@ -1103,6 +1103,49 @@ claude</pre>
   </section>
 
   <section>
+    <h3>「前のバージョンに戻したい」をやってみよう</h3>
+    <p>Chapter 4 で「Gitはセーブポイント」と説明しました。<br>
+    ここで実際に<strong>「セーブポイントに戻す」体験</strong>をしてみましょう。</p>
+
+    <p><strong>まず、わざと大きく変更してみましょう：</strong></p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>自己紹介ページのデザインを大胆に変えて。レイアウトも色も全部変えてみて。</pre>
+    </div>
+    <p>変更されたら、GitHubにもあげておきましょう：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>今の変更をGitHubにプッシュして</pre>
+    </div>
+
+    <p>さて、「やっぱり前のほうがよかったな...」と思ったとしましょう。<br>
+    <strong>こういうとき、Gitなら戻せます。</strong>Claude Codeにこう頼んでみてください：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      <pre>さっきの変更をやめて、1つ前のバージョンに戻したい。gitの履歴を見せてから、戻す方法を教えて。</pre>
+    </div>
+
+    <p>Claude Codeがやってくれること：</p>
+    <ol style="margin-left:1.5rem; margin-bottom:0.75rem;">
+      <li><code>git log</code> で過去のセーブポイント一覧を見せてくれる</li>
+      <li>どの時点に戻すか確認してくれる</li>
+      <li>戻してくれる</li>
+    </ol>
+
+    <div class="analogy">
+      <strong>たとえるなら：</strong><br>
+      ゲームでボス戦に負けた → セーブポイントからやり直し<br>
+      デザインを変えすぎた → git で前の状態に巻き戻し<br>
+      <strong>「失敗しても元に戻せる」</strong>のがGitの最大のメリットです。
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">&#x2705;</span>
+      <div><strong>ポイント：</strong>だからこそ、こまめに commit（セーブ）しておくのが大事です。セーブしていない変更は戻せません。迷ったら「今の状態をコミットして」とClaude Codeに頼みましょう。</div>
+    </div>
+  </section>
+
+  <section>
     <h3>今日のまとめ</h3>
     <p>おつかれさまでした！今日やったことを振り返りましょう：</p>
     <ul class="checklist">
